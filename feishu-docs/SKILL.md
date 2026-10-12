@@ -1,6 +1,20 @@
 ---
 name: feishu-docs
-description: Read, write, restructure and illustrate Feishu/Lark cloud documents (飞书文档, docx) with lark-cli acting as your Feishu bot. Use it whenever the user mentions a Feishu or Lark doc, pastes a feishu.cn or larksuite.com /docx/ or /wiki/ link, says "put this in the doc", "write this into Feishu", "update the document", "regenerate the results section", "insert these figures/plots/tables into the doc", "add a diagram", "leave a comment", "export the doc", "undo that edit", "create a page in the wiki", "move this doc into the knowledge base", "what is in this wiki space", or has invited the bot to a document and wants it filled, revised, synced from local files or appended, even if they do not say "lark-cli". Covers wiki spaces (知识库: browse the page tree, create pages under a node, move or copy pages, upload files under a page), section-level sync from local Markdown/XML, Feishu's automatic heading numbering, local figures and attachments, callouts/code/checklists/columns/formulas, Mermaid diagrams as boards, @mentions, comments, version history, PDF/Word export, importing local files, creating docs in folders or wikis and sharing them back. Not for Bitable/Base tables, spreadsheets or IM messages.
+description: >-
+  Read, write, restructure and illustrate Feishu/Lark cloud documents (飞书文档, docx) with lark-cli
+  acting as your Feishu bot. Use it whenever the user mentions a Feishu or Lark doc, pastes a
+  feishu.cn or larksuite.com /docx/ or /wiki/ link, says "put this in the doc", "write this into
+  Feishu", "update the document", "regenerate the results section", "insert these
+  figures/plots/tables into the doc", "add a diagram", "leave a comment", "export the doc", "undo
+  that edit", "create a page in the wiki", "move this doc into the knowledge base", "what is in
+  this wiki space", or has invited the bot to a document and wants it filled, revised, synced from
+  local files or appended, even if they do not say "lark-cli". Covers wiki spaces (知识库: browse the
+  page tree, create pages under a node, move or copy pages, upload files under a page),
+  section-level sync from local Markdown/XML, Feishu's automatic heading numbering, local figures
+  and attachments, callouts/code/checklists/columns/formulas, Mermaid diagrams as boards,
+  @mentions, comments, version history, PDF/Word export, importing local files, creating docs in
+  folders or wikis and sharing them back. Not for Bitable/Base tables, spreadsheets or IM
+  messages.
 ---
 
 # Feishu docs with lark-cli
