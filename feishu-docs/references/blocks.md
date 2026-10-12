@@ -35,7 +35,7 @@ with its title).
 
 | What | XML | Notes |
 |---|---|---|
-| Local image | `<img path="@./figures/x.png" width="600" align="center" caption="Figure 1. …"/>` | path relative to cwd; PNG/JPEG/GIF/WebP ≤ 20 MiB; omit width for full width |
+| Local image | `<img path="@./figures/x.png" width="600" align="center" caption="Figure 1. …"/>` | path relative to cwd; PNG/JPEG/GIF/WebP ≤ 20 MiB; omit width for full width; the caption comes back with a trailing newline (`&#xA;`), so match on it with care |
 | Web image | `<img href="https://…/x.png"/>` | the CLI downloads and uploads it |
 | Copy of an existing image | `<img src="<file token>"/>` | token from a `with-ids`/`full` fetch (`src=`) |
 | Attachment | `<source path="@./data.csv" name="data.csv"/>` | or `docs +media-insert --type file --file …` at the end of the doc; `<figure view-type="Card">` around it for a card |

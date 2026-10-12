@@ -146,8 +146,9 @@ Read a reference file the first time a task needs it, not up front.
 
 5. **Verify and hand over.** Fetch the edited section back as Markdown (step 1); for a
    document the user will read as a whole, export it to PDF and look at the pages
-   (`lark-cli drive +export … --file-extension pdf`): figures, captions, numbering, tables and
-   boards show as the reader sees them, so no separate board preview is needed. Tell the user what changed and where (`<url>#<block_id>`
+   (`lark-cli drive +export --as bot --url "<doc or wiki url>" --file-extension pdf --output-dir ./out`):
+   figures, captions, numbering, tables and boards show as the reader sees them, so no
+   separate board preview is needed. Tell the user what changed and where (`<url>#<block_id>`
    links straight to a block). When you changed something substantive that the user did not
    watch, leave one short comment anchored to the block (`references/collaboration.md`).
    Delete the `_*.md` scratch files you wrote into the working folder.
@@ -178,16 +179,24 @@ restores it (a new revision; tell the user).
 
 ## New document
 
-`docs +create` as the bot makes an app-owned doc; share it back or the user never sees it:
+**Inside a wiki** (the user gave a `/wiki/` link and wants a page under it): one write per
+step, no share-back, full details in `references/wiki.md`:
+```bash
+lark-cli wiki +node-get --as bot --node-token "<parent wiki url>" --jq '.data | {node_token, obj_type, title}'
+lark-cli wiki +node-create --as bot --parent-node-token <node token> --title "Page title" --jq '.data | {node_token, obj_token, url}'
+lark-cli docs +update --as bot --doc <obj_token> --command append --content @./_body.xml     # headings as <h1 seq="auto">, figures as <img path="@./…">
+python3 <skill dir>/scripts/wiki_tree.py "<parent wiki url>"                                # show the user what is there now
+```
+A parent whose `obj_type` is `bitable` or `sheet` may report an empty title; that is still
+the right node. Then verify and export as in step 5.
+
+**In Drive:** `docs +create` as the bot makes an app-owned doc; share it back or the user never sees it:
 ```bash
 lark-cli docs +create --as bot --title "Document title" --doc-format markdown --content @./body.md \
   --jq '.data.document | {document_id, url}'                       # --parent-token <folder or wiki node> to place it
 lark-cli drive +member-add --as bot --token "<url>" --member-type email \
   --member-id user@example.com --perm full_access --yes      # or --member-type unionid/openid
 ```
-Inside a wiki, create the page as a node instead (`lark-cli wiki +node-create --as bot
---parent-node-token "<wiki url>" --title "T"`, then fill its `obj_token`): space members see
-it at once, no share-back needed (`references/wiki.md`).
 The create command warns "auto-grant was skipped" when no user is logged in; that warning is
 expected. Then run `number_headings.py` on the new doc (or author the XML with `seq="auto"`
 headings from the start). Prefer appending to a doc the user already shared over creating
@@ -199,6 +208,7 @@ new ones. A local `.md`/`.docx` file becomes a doc with `lark-cli drive +import 
 lark-cli drive +member-list --as bot --token "<doc url>" --jq '.data.items[] | {member_type, member_id, perm}'
 ```
 The bot appears as `member_type: appid` with the app id from `lark-cli auth status`; `perm`
-must be `edit` or `full_access` for writes. For a wiki, `lark-cli wiki +space-list --as bot`
-lists the spaces the bot is a member of (empty = it must be added in the space settings), and
-`wiki +node-get` on the link answers whether it can see that page (error 131006 = no access).
+must be `edit` or `full_access` for writes. For a wiki, `lark-cli wiki +node-get --as bot
+--node-token "<wiki url>"` answers whether the bot can reach that page (131006 = no access);
+sharing one page with the bot is enough to manage everything under it, membership of the
+whole space (`wiki +space-list`) only adds listing the space root (`references/wiki.md`).

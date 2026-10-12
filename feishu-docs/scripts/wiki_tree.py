@@ -59,7 +59,7 @@ def main():
         node = lark(["wiki", "+node-get", "--node-token", a.start], a.as_)
         space_id, root = node["space_id"], node["node_token"]
         print(f"space_id={space_id}")
-        print(f"{node.get('title', '')}  [{node.get('obj_type')}]  node={root}  doc={node.get('obj_token')}")
+        print(f"{node.get('title') or '(untitled)'}  [{node.get('obj_type')}]  node={root}  doc={node.get('obj_token')}")
 
     def walk(parent, level):
         if a.depth and level > a.depth:
