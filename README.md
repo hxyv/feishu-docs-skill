@@ -53,7 +53,7 @@ Everything in the skill was verified against a live document with lark-cli 1.0.9
 Copy or symlink the `feishu-docs` folder into Claude Code's skills directory:
 
 ```bash
-git clone https://github.com/<you>/feishu-docs-skill
+git clone https://github.com/hxyv/feishu-docs-skill
 ln -s "$PWD/feishu-docs-skill/feishu-docs" ~/.claude/skills/feishu-docs       # all projects
 # or: cp -r feishu-docs-skill/feishu-docs <project>/.claude/skills/            # one project
 ```
