@@ -54,8 +54,9 @@ Read a reference file the first time a task needs it, not up front.
    ```
    Block ids appear only in the XML format, not in Markdown output. `+fetch` accepts `/docx/`
    and `/wiki/` URLs; `+media-insert` needs a bare `document_id` (`lark-cli drive +inspect
-   --as bot --url "<wiki url>"` unwraps it). The default JSON fetch also lists unresolved
-   comments: read them before editing, they are usually the brief.
+   --as bot --url "<wiki url>"` unwraps it). Before editing, list the open comments: they are
+   usually the brief (`lark-cli drive +list-comments --as bot --token "<doc url>"`, see
+   `references/collaboration.md`; a plain fetch does not include them).
 
 2. **Produce local assets first** (figures as PNG, data files, diagrams), when the task has
    any, in a directory you will `cd` into (the document's working folder with `figures/`
@@ -89,7 +90,12 @@ Read a reference file the first time a task needs it, not up front.
    MD
    python3 <skill dir>/scripts/sync_section.py "<doc>" "Results" _results.md
    python3 <skill dir>/scripts/sync_section.py "<doc>" "Changelog" _log.md --level 2
+   python3 <skill dir>/scripts/sync_section.py "<doc>" "Pipeline" _pipeline.xml --level 2
    ```
+   The body file's extension picks the format. Use an `.xml` body when the section needs
+   what Markdown cannot say: a sized figure (`<img path="@./figures/x.png" width="600"
+   caption="…"/>`), a Mermaid board, numbered sub-headings (`<h3 seq="auto">`), a callout.
+   A `.md` body renders its images at full width.
    To add rather than replace, anchor an insert yourself: after the heading (top of the
    section) or after the section's last block (end of the section); `--command append`
    adds at the end of the document:
@@ -138,8 +144,8 @@ Read a reference file the first time a task needs it, not up front.
 
 5. **Verify and hand over.** Fetch the edited section back as Markdown (step 1); for a
    document the user will read as a whole, export it to PDF and look at the pages
-   (`lark-cli drive +export … --file-extension pdf`): figures, captions, numbering and tables
-   show as the reader sees them. Tell the user what changed and where (`<url>#<block_id>`
+   (`lark-cli drive +export … --file-extension pdf`): figures, captions, numbering, tables and
+   boards show as the reader sees them, so no separate board preview is needed. Tell the user what changed and where (`<url>#<block_id>`
    links straight to a block). When you changed something substantive that the user did not
    watch, leave one short comment anchored to the block (`references/collaboration.md`).
    Delete the `_*.md` scratch files you wrote into the working folder.

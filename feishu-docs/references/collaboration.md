@@ -13,10 +13,10 @@ lark-cli drive +list-comments --as bot --token "<doc url>" \
 lark-cli drive +add-reply --as bot --doc "<doc url>" --comment-id <id> --content '[{"type":"text","text":"Done."}]'
 lark-cli drive +resolve-comment --as bot --doc "<doc url>" --comment-id <id>
 ```
-`docs +fetch` (default JSON) also returns unresolved comments next to the content, which is
-the cheapest way to see what reviewers asked for before editing. A good habit after a
-substantive edit the user did not watch: one short comment on the changed block saying what
-changed and from which data.
+A plain `docs +fetch` does not include comments (verified as bot on 1.0.96); `+list-comments`
+is the way to see what reviewers asked for before editing. A good habit after a substantive
+edit the user did not watch: one short comment on the changed block saying what changed and
+from which data.
 
 ## Version history — the undo button
 
