@@ -45,9 +45,9 @@ lark-cli docs +create --as bot --title "T" --parent-token <folder or wiki node t
 lark-cli drive +inspect --as bot --url "<any feishu url>"      # type, title, canonical token; unwraps /wiki/ links
 lark-cli drive +update-title --as bot --token "<doc url>" --title "New title"
 ```
-For a wiki, the parent token is the wiki node the user shares (the bot needs edit rights on
-that node). `+media-insert` wants the bare docx `document_id`, which `+inspect` returns for a
-wiki URL.
+For a wiki target use `wiki +node-create` instead (see `wiki.md`: it returns the node token and
+the docx `obj_token`, and the page is visible to the space without sharing). `+media-insert`
+wants the bare docx `document_id`, which `+inspect` or `wiki +node-get` returns for a wiki URL.
 
 ## Sharing and access
 

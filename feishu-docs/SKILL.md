@@ -1,6 +1,6 @@
 ---
 name: feishu-docs
-description: Read, write, restructure and illustrate Feishu/Lark cloud documents (飞书文档, docx) with lark-cli acting as your Feishu bot. Use it whenever the user mentions a Feishu or Lark doc, pastes a feishu.cn or larksuite.com /docx/ or /wiki/ link, says "put this in the doc", "write this into Feishu", "update the document", "regenerate the results section", "insert these figures/plots/tables into the doc", "add a diagram", "leave a comment", "export the doc", "undo that edit", or has invited the bot to a document and wants it filled, revised, synced from local files or appended, even if they do not say "lark-cli". Covers section-level sync from local Markdown/XML, Feishu's automatic heading numbering, local figures and attachments, callouts/code/checklists/columns/formulas, Mermaid diagrams as boards, @mentions, comments, version history, PDF/Word export, importing local files, creating docs in folders or wikis and sharing them back. Not for Bitable/Base tables, spreadsheets or IM messages.
+description: Read, write, restructure and illustrate Feishu/Lark cloud documents (飞书文档, docx) with lark-cli acting as your Feishu bot. Use it whenever the user mentions a Feishu or Lark doc, pastes a feishu.cn or larksuite.com /docx/ or /wiki/ link, says "put this in the doc", "write this into Feishu", "update the document", "regenerate the results section", "insert these figures/plots/tables into the doc", "add a diagram", "leave a comment", "export the doc", "undo that edit", "create a page in the wiki", "move this doc into the knowledge base", "what is in this wiki space", or has invited the bot to a document and wants it filled, revised, synced from local files or appended, even if they do not say "lark-cli". Covers wiki spaces (知识库: browse the page tree, create pages under a node, move or copy pages, upload files under a page), section-level sync from local Markdown/XML, Feishu's automatic heading numbering, local figures and attachments, callouts/code/checklists/columns/formulas, Mermaid diagrams as boards, @mentions, comments, version history, PDF/Word export, importing local files, creating docs in folders or wikis and sharing them back. Not for Bitable/Base tables, spreadsheets or IM messages.
 ---
 
 # Feishu docs with lark-cli
@@ -30,7 +30,8 @@ not the shell exit status. The `_notice` update nag can be ignored.
 | Feishu numbering on every heading | `scripts/number_headings.py <doc>` | step 3 |
 | CSV → Markdown table | `scripts/csv_table.py data.csv` | step 3 |
 | Figures, attachments, diagrams (Mermaid/SVG), callouts, code, checklists, columns, formulas, mentions, coloured tables | DocxXML | `references/blocks.md` |
-| Comments, version history (undo), PDF/Word export, importing files, folders and wikis, sharing, search | `lark-cli drive …`, `docs +history-*` | `references/collaboration.md` |
+| Comments, version history (undo), PDF/Word export, importing files, folders, sharing, search | `lark-cli drive …`, `docs +history-*` | `references/collaboration.md` |
+| Wiki spaces: page tree, create a page under a node, move/copy/rename/delete pages, files under a page | `scripts/wiki_tree.py <space or url>`, `lark-cli wiki +node-*` | `references/wiki.md` |
 
 Read a reference file the first time a task needs it, not up front.
 
@@ -53,8 +54,9 @@ Read a reference file the first time a task needs it, not up front.
    lark-cli docs +fetch --as bot --doc "<doc>" --scope section --start-block-id <hid> --detail with-ids
    ```
    Block ids appear only in the XML format, not in Markdown output. `+fetch` accepts `/docx/`
-   and `/wiki/` URLs; `+media-insert` needs a bare `document_id` (`lark-cli drive +inspect
-   --as bot --url "<wiki url>"` unwraps it). Before editing, list the open comments: they are
+   and `/wiki/` URLs; `+media-insert` needs a bare `document_id` (`lark-cli wiki +node-get --as bot
+   --node-token "<wiki url>"` returns it as `obj_token`, with the space and parent; see
+   `references/wiki.md` when the task is about the wiki itself, not just one page in it). Before editing, list the open comments: they are
    usually the brief (`lark-cli drive +list-comments --as bot --token "<doc url>"`, see
    `references/collaboration.md`; a plain fetch does not include them).
 
@@ -183,6 +185,9 @@ lark-cli docs +create --as bot --title "Document title" --doc-format markdown --
 lark-cli drive +member-add --as bot --token "<url>" --member-type email \
   --member-id user@example.com --perm full_access --yes      # or --member-type unionid/openid
 ```
+Inside a wiki, create the page as a node instead (`lark-cli wiki +node-create --as bot
+--parent-node-token "<wiki url>" --title "T"`, then fill its `obj_token`): space members see
+it at once, no share-back needed (`references/wiki.md`).
 The create command warns "auto-grant was skipped" when no user is logged in; that warning is
 expected. Then run `number_headings.py` on the new doc (or author the XML with `seq="auto"`
 headings from the start). Prefer appending to a doc the user already shared over creating
@@ -194,4 +199,6 @@ new ones. A local `.md`/`.docx` file becomes a doc with `lark-cli drive +import 
 lark-cli drive +member-list --as bot --token "<doc url>" --jq '.data.items[] | {member_type, member_id, perm}'
 ```
 The bot appears as `member_type: appid` with the app id from `lark-cli auth status`; `perm`
-must be `edit` or `full_access` for writes.
+must be `edit` or `full_access` for writes. For a wiki, `lark-cli wiki +space-list --as bot`
+lists the spaces the bot is a member of (empty = it must be added in the space settings), and
+`wiki +node-get` on the link answers whether it can see that page (error 131006 = no access).

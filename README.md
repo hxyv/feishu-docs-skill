@@ -35,8 +35,13 @@ agent:  (reads the outline, makes the PNG with matplotlib, inserts a numbered he
   rendered as editable Feishu boards (`references/blocks.md`).
 - **Collaboration.** Comments anchored to blocks (add, list, reply, resolve), version history
   as an undo button, PDF/Word/Markdown export to see the rendered result, importing local
-  Markdown or Word files as new docs, folder and wiki targets, renaming, permissions, and
-  what the search command needs (`references/collaboration.md`).
+  Markdown or Word files as new docs, folder targets, renaming, permissions, and what the
+  search command needs (`references/collaboration.md`).
+- **Wiki spaces.** The difference between a page's node token and the document it wraps,
+  which spaces the bot can see, browsing a space's page tree (`scripts/wiki_tree.py`),
+  creating a page under a given node and filling it, moving a Drive doc into the wiki,
+  moving, copying, renaming and deleting pages, files under a page, members
+  (`references/wiki.md`).
 - **Safety.** Replace existing figures and tables in place instead of appending duplicates;
   never `overwrite` a shared document; high-risk operations only when the user asked.
 
@@ -54,9 +59,11 @@ Everything in the skill was verified against a live document with lark-cli 1.0.9
    least: `docx:document` (read and write blocks), `docs:document.content:read`,
    `docs:document.media:upload`, `docs:permission.member:readonly` (list collaborators),
    `docs:permission.member:create` (share a bot-created doc back), `drive:drive.metadata:readonly`
-   (inspect URLs) and `wiki:node:read` for `/wiki/` links. Grant them in the Feishu developer
+   (inspect URLs) and `wiki:node:read` for `/wiki/` links. Wiki work adds `wiki:space:retrieve`,
+   `wiki:node:retrieve`, `wiki:node:create`, `wiki:node:move`, `wiki:node:copy` (or the umbrella
+   `wiki:wiki`), and the bot must be added as a member of each wiki space it should manage. Grant them in the Feishu developer
    console, publish the app version, and ask the tenant admin to approve if required.
-3. Python 3.8+ for the two helper scripts (standard library only). matplotlib or any plotting
+3. Python 3.8+ for the helper scripts (standard library only). matplotlib or any plotting
    tool for the figures.
 
 ## Install
@@ -105,11 +112,13 @@ should be attributed to them. Standard library only.
 feishu-docs/
   SKILL.md                      the skill (frontmatter + the workflow the agent follows)
   references/blocks.md          DocxXML block vocabulary, media, diagrams, list/range rules, escaping
-  references/collaboration.md   comments, history/undo, export/import, folders & wiki, sharing, search
+  references/collaboration.md   comments, history/undo, export/import, folders, sharing, search
+  references/wiki.md            wiki spaces: tokens, access, page tree, create/move/copy/delete pages
   scripts/anchors.py            outline with the block ids edits anchor to
   scripts/sync_section.py       replace or create one section from a local file
   scripts/number_headings.py    switch on Feishu numbering for every heading
   scripts/csv_table.py          CSV to Markdown table
+  scripts/wiki_tree.py          page tree of a wiki space or subtree with node and doc tokens
 examples/
   make_figure.py                a matplotlib figure the way the skill expects it
   section.md                    a Markdown section body with a local figure and a table
