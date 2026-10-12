@@ -1,7 +1,8 @@
-# feishu-docs: a Claude Code skill for writing reports into Feishu docs
+# feishu-docs: a Claude Code skill for editing Feishu docs
 
-Invite your Feishu (Lark) bot to a document, then ask Claude Code to fill it: sections, tables
-and locally generated figures land in the right place, with Feishu's own heading numbering.
+Invite your Feishu (Lark) bot to a document, then ask Claude Code to edit it: sections, tables
+and locally generated figures land in the right place, existing blocks are revised rather
+than duplicated, and headings carry Feishu's own numbering.
 The skill teaches the agent to drive [lark-cli](https://github.com/larksuite/cli) (the
 official Feishu/Lark command line) as the bot identity, which is what makes "invite the bot
 and let the agent manage the doc" work without a user login.
@@ -58,7 +59,7 @@ ln -s "$PWD/feishu-docs-skill/feishu-docs" ~/.claude/skills/feishu-docs       # 
 ```
 
 Claude Code picks the skill up automatically when a request mentions a Feishu doc, a
-`/docx/` or `/wiki/` link, or putting a report or figures into "the doc".
+`/docx/` or `/wiki/` link, or putting text or figures into "the doc".
 
 ## Use
 
@@ -66,7 +67,7 @@ Claude Code picks the skill up automatically when a request mentions a Feishu do
    **edit** permission (search for the app's name).
 2. Ask Claude Code, with the document link, what to write or change.
 3. The agent reads the outline, writes content from files in its working directory, uploads
-   the figures, numbers the headings and fetches the result back for you to check.
+   any figures, numbers the headings and fetches the result back for you to check.
 
 ### Helper scripts
 
@@ -96,7 +97,7 @@ examples/
   slides are out of scope.
 - Markdown headings are imported unnumbered; the skill therefore writes headings in XML or
   runs `number_headings.py` afterwards.
-- `lark-cli` refuses `--content @/absolute/path`; the skill works from the report folder with
+- `lark-cli` refuses `--content @/absolute/path`; the skill works from a working folder with
   relative paths. `docs +media-insert --file` accepts absolute paths.
 - lark-cli's own embedded guides (`lark-cli skills read lark-doc`) remain the reference for
   exotic blocks (callouts, grids, whiteboards); the skill points the agent there when needed.

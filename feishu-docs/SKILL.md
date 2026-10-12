@@ -1,6 +1,6 @@
 ---
 name: feishu-docs
-description: Write, edit and illustrate Feishu/Lark cloud documents (飞书文档, docx) with lark-cli acting as your Feishu bot. Use it whenever the user mentions a Feishu or Lark doc, pastes a feishu.cn or larksuite.com /docx/ or /wiki/ link, says "put this in the doc", "write the report into Feishu", "update the document", "insert these figures/plots into the doc", or has invited the bot to a document and wants it filled, revised or appended, even if they do not say "lark-cli". Covers reading a doc, inserting Markdown or XML content at a chosen heading, Feishu's automatic heading numbering, uploading local PNG figures as image blocks, replacing an existing figure or table, creating a new doc and sharing it back. Not for Bitable/Base tables, spreadsheets or IM messages.
+description: Write, edit and illustrate Feishu/Lark cloud documents (飞书文档, docx) with lark-cli acting as your Feishu bot. Use it whenever the user mentions a Feishu or Lark doc, pastes a feishu.cn or larksuite.com /docx/ or /wiki/ link, says "put this in the doc", "write this into Feishu", "update the document", "insert these figures/plots into the doc", or has invited the bot to a document and wants it filled, revised or appended, even if they do not say "lark-cli". Covers reading a doc, inserting Markdown or XML content at a chosen heading, Feishu's automatic heading numbering, uploading local PNG figures as image blocks, replacing an existing figure or table, creating a new doc and sharing it back. Not for Bitable/Base tables, spreadsheets or IM messages.
 ---
 
 # Feishu docs with lark-cli
@@ -21,7 +21,7 @@ here (`lark-cli auth status` shows which identities are ready). Facts that shape
 Results are JSON. Check the `ok` field (use `--jq`), not the shell exit status. The `_notice`
 update nag can be ignored.
 
-## Workflow for "manage this doc / write the report with my figures"
+## Workflow for editing a Feishu doc
 
 1. **Observe.** Run the bundled helper to get the outline with the ids edits need:
    ```bash
@@ -43,13 +43,13 @@ update nag can be ignored.
    `+fetch` accepts `/docx/` and `/wiki/` URLs; `+media-insert` needs a bare `document_id`
    (`lark-cli drive +inspect --as bot --url "<wiki url>"` unwraps it).
 
-2. **Produce the figures first**, as PNG, in a directory you will `cd` into (e.g. the report's
-   folder with `figures/` beneath it). matplotlib: `matplotlib.use("Agg")`, `dpi=150`, one idea
+2. **Produce local assets first** (figures as PNG, attachments), when the task has any, in a
+   directory you will `cd` into (e.g. the document's working folder with `figures/` beneath it). matplotlib: `matplotlib.use("Agg")`, `dpi=150`, one idea
    per figure, axis labels and units. A Markdown image is shown at full width (about 900 px);
    when you want a smaller figure (600 px reads well for a single plot) use the XML `<img
    width=...>` form or `+media-insert --width`.
 
-3. **Write content from files, with the cwd set to the report folder.** `--content @./file`
+3. **Write content from files, with the cwd set to that working folder.** `--content @./file`
    accepts only cwd-relative paths (an absolute `@/...` path is refused as unsafe), and local
    images in the content are resolved the same way. Markdown is the easy format for prose,
    lists and tables; XML gives exact control (headings with numbering, captions, width,
@@ -57,16 +57,16 @@ update nag can be ignored.
 
    Insert a section body with a figure directly after a heading (= top of that section):
    ```bash
-   cd <report folder>
+   cd <working folder>
    cat > _sec.md <<'MD'
-   Intake latency fell from 23 s to 4.8 s with a warm configuration cache.
+   Run time fell from 23 s to 4.8 s after the change.
 
-   ![Figure 1. Intake latency per release](@./figures/latency.png)
+   ![Figure 1. Run time per version](@./figures/runtime.png)
 
-   | Run | Sessions | Seconds |
+   | Version | Steps | Seconds |
    |---|---|---|
    | before | 14 | 23.0 |
-   | warm | 3 | 4.8 |
+   | after | 3 | 4.8 |
    MD
    lark-cli docs +update --as bot --doc "<doc>" --command block_insert_after \
      --block-id <heading_id> --doc-format markdown --content @./_sec.md
@@ -78,7 +78,7 @@ update nag can be ignored.
    XML when you need width/alignment/caption on the image or a paragraph caption of your own:
    ```bash
    lark-cli docs +update --as bot --doc "<doc>" --command block_insert_after --block-id <id> \
-     --content '<p>Figure 2 shows the fit per node.</p><img path="@./figures/fit.png" align="center" width="600" caption="Figure 2. Node fit"/>'
+     --content '<p>Figure 2 shows the result per group.</p><img path="@./figures/groups.png" align="center" width="600" caption="Figure 2. Result per group"/>'
    ```
    A one-off image at the very end of the document takes any path, absolute included:
    ```bash
@@ -93,7 +93,7 @@ update nag can be ignored.
    heading, whatever its level, in XML, then anchor the body after it:
    ```bash
    lark-cli docs +update --as bot --doc "<doc>" --command block_insert_after --block-id <section_last_id> \
-     --content '<h3 seq="auto">Throughput test</h3>'
+     --content '<h3 seq="auto">New subsection</h3>'
    python3 <skill dir>/scripts/anchors.py "<doc>"      # the new heading's id
    lark-cli docs +update --as bot --doc "<doc>" --command block_insert_after --block-id <new_h3_id> \
      --doc-format markdown --content @./_body.md
@@ -110,11 +110,11 @@ update nag can be ignored.
    It keeps the headings' text and inline formatting; the replaced headings get new ids.
    (If the user's existing document deliberately has no numbering, follow the document.)
 
-4. **Revise instead of duplicating.** When the report already has the figure or table, replace
+4. **Revise instead of duplicating.** When the document already has the figure or table, replace
    the block in place so the doc does not grow a second copy:
    ```bash
    lark-cli docs +update --as bot --doc "<doc>" --command block_replace --block-id <img_or_table_id> \
-     --content '<img path="@./figures/fit.png" width="600" caption="Figure 2. Node fit (rerun)"/>'
+     --content '<img path="@./figures/groups.png" width="600" caption="Figure 2. Result per group (updated)"/>'
    lark-cli docs +update --as bot --doc "<doc>" --command block_replace --block-id <table_id> \
      --doc-format markdown --content @./_table.md
    lark-cli docs +update --as bot --doc "<doc>" --command str_replace --pattern "old sentence" --content "new sentence"
@@ -129,9 +129,9 @@ update nag can be ignored.
 
 5. **Verify** with a Markdown fetch (step 1) and tell the user what changed and where (the
    doc URL; `<url>#<block_id>` links straight to a block). Delete the `_sec.md`-style scratch
-   files you wrote into the report folder.
+   files you wrote into the working folder.
 
-## Rules of the house
+## Rules
 
 - Never `--command overwrite` on a document the user shares with you: it discards comments,
   images and blocks Markdown cannot express. Edit by block.
@@ -150,7 +150,7 @@ update nag can be ignored.
 
 `docs +create` as the bot makes an app-owned doc; share it back or the user never sees it:
 ```bash
-lark-cli docs +create --as bot --title "Report title" --doc-format markdown --content @./report.md \
+lark-cli docs +create --as bot --title "Document title" --doc-format markdown --content @./body.md \
   --jq '.data.document | {document_id, url}'
 lark-cli drive +member-add --as bot --token "<url>" --member-type email \
   --member-id user@example.com --perm full_access --yes      # or --member-type unionid/openid
