@@ -16,18 +16,29 @@ agent:  (reads the outline, makes the PNG with matplotlib, inserts a numbered he
 
 ## What the agent learns
 
-- The bot can only open documents it was invited to, and how to recognise the "not invited"
-  error instead of retrying.
-- Where an insert lands: directly after a heading = top of the section; after the section's
-  last block = end of the section (`scripts/anchors.py` prints both ids for every heading).
-- Feishu's automatic heading numbering (1, 1.1, 1.2.1 …) is the XML attribute `seq="auto"`,
-  so headings are written in XML, never as typed numbers; `scripts/number_headings.py` turns
-  numbering on for every heading of an existing document in one run.
-- Local PNG figures go in through `<img path="@./figures/x.png">` (XML, with width and
-  caption), Markdown `![caption](@./figures/x.png)` (full width) or `docs +media-insert`
-  (end of document, any path). Content files must be relative to the working directory.
-- Replace an existing figure or table block in place instead of appending a second copy; never
-  `overwrite` a shared document; share-back a bot-created document or the user never sees it.
+- **Access model.** The bot can only open documents it was invited to; the skill recognises
+  the "not invited" error instead of retrying, checks collaborators, and shares back any
+  document the bot created itself.
+- **Where edits land.** Directly after a heading = top of the section; after the section's
+  last block = end of the section. `scripts/anchors.py` prints both ids for every heading,
+  with the number Feishu shows for it.
+- **Section sync.** `scripts/sync_section.py <doc> "Heading" body.md` replaces one section's
+  body from a local Markdown or XML file in place (lists handled, heading and its number
+  kept), or creates the section if it is missing. This is the primitive for "regenerate the
+  Results section from the new run".
+- **Feishu-native numbering.** Automatic heading numbers (1, 1.1, 1.2.1 …) are the XML
+  attribute `seq="auto"`; `scripts/number_headings.py` turns them on for every heading of a
+  document in one run.
+- **The whole block vocabulary**, verified: callouts, quotes, code blocks, checklists, columns,
+  coloured tables, inline formulas, highlights, @mentions and document mentions, local and web
+  images with width and caption, file attachments, and diagrams from Mermaid, PlantUML or SVG
+  rendered as editable Feishu boards (`references/blocks.md`).
+- **Collaboration.** Comments anchored to blocks (add, list, reply, resolve), version history
+  as an undo button, PDF/Word/Markdown export to see the rendered result, importing local
+  Markdown or Word files as new docs, folder and wiki targets, renaming, permissions, and
+  what the search command needs (`references/collaboration.md`).
+- **Safety.** Replace existing figures and tables in place instead of appending duplicates;
+  never `overwrite` a shared document; high-risk operations only when the user asked.
 
 Everything in the skill was verified against a live document with lark-cli 1.0.96.
 
@@ -72,23 +83,28 @@ Claude Code picks the skill up automatically when a request mentions a Feishu do
 ### Helper scripts
 
 ```bash
-python3 feishu-docs/scripts/anchors.py "<doc url>"                 # outline: heading id, section-last id, number
-python3 feishu-docs/scripts/number_headings.py "<doc url>" --dry-run
-python3 feishu-docs/scripts/number_headings.py "<doc url>"          # seq="auto" on every heading
+python3 feishu-docs/scripts/anchors.py "<doc url>"                        # outline: heading id, section-last id, number
+python3 feishu-docs/scripts/sync_section.py "<doc url>" "Results" body.md  # replace a section body from a file (--level 2 creates it)
+python3 feishu-docs/scripts/number_headings.py "<doc url>" --dry-run       # then without --dry-run: seq="auto" on every heading
+python3 feishu-docs/scripts/csv_table.py data.csv > _table.md             # CSV → Markdown table
 ```
-Both default to `--as bot`; pass `--as user` when lark-cli has a logged-in user and the edits
-should be attributed to them.
+All default to `--as bot`; pass `--as user` when lark-cli has a logged-in user and the edits
+should be attributed to them. Standard library only.
 
 ## Repository layout
 
 ```
 feishu-docs/
-  SKILL.md                  the skill (frontmatter + instructions the agent follows)
-  scripts/anchors.py        outline with the block ids edits anchor to
-  scripts/number_headings.py  switch on Feishu numbering for every heading
+  SKILL.md                      the skill (frontmatter + the workflow the agent follows)
+  references/blocks.md          DocxXML block vocabulary, media, diagrams, list/range rules, escaping
+  references/collaboration.md   comments, history/undo, export/import, folders & wiki, sharing, search
+  scripts/anchors.py            outline with the block ids edits anchor to
+  scripts/sync_section.py       replace or create one section from a local file
+  scripts/number_headings.py    switch on Feishu numbering for every heading
+  scripts/csv_table.py          CSV to Markdown table
 examples/
-  make_figure.py            a matplotlib figure the way the skill expects it
-  section.md                a Markdown section body with a local figure and a table
+  make_figure.py                a matplotlib figure the way the skill expects it
+  section.md                    a Markdown section body with a local figure and a table
 ```
 
 ## Notes and limits
