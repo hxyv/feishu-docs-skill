@@ -61,7 +61,15 @@ Everything in the skill was verified against a live document with lark-cli 1.0.9
 
 ## Install
 
-Copy or symlink the `feishu-docs` folder into Claude Code's skills directory:
+The quickest way is the `skills` CLI, which finds the skill in this repo and copies it into
+the agent's skills directory (it works for Claude Code, Codex, Cursor and others):
+
+```bash
+npx skills add hxyv/feishu-docs-skill            # pick the agent and scope interactively
+npx skills add hxyv/feishu-docs-skill -g         # global (all projects)
+```
+
+Or copy or symlink the `feishu-docs` folder into Claude Code's skills directory yourself:
 
 ```bash
 git clone https://github.com/hxyv/feishu-docs-skill
