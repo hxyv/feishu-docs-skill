@@ -116,6 +116,7 @@ Read a reference file the first time a task needs it, not up front.
    python3 <skill dir>/scripts/sync_section.py "<doc>" "Results" _results.md
    python3 <skill dir>/scripts/sync_section.py "<doc>" "Changelog" _log.md --level 2
    python3 <skill dir>/scripts/sync_section.py "<doc>" "Pipeline" _pipeline.xml --level 2
+   # the body starts at the section's first block: the script keeps or creates the heading itself
    ```
    The body file's extension picks the format. Use an `.xml` body when the section needs
    what Markdown cannot say: a sized figure (`<img path="@./figures/x.png" width="600"
@@ -167,9 +168,11 @@ Read a reference file the first time a task needs it, not up front.
    headings and paragraphs inserted with them; `result: success` with no warnings means the
    whole payload landed.
    A regenerated figure goes into the existing image block (`scripts/media_at.py <doc> fig.png
-   --replace <img block id>`: id, position and caption stay, only the picture changes; also
-   for `<source>` attachments), a regenerated diagram into the existing board
-   (`scripts/board_update.py <doc> <board block id or token> d.mmd|d.puml|d.svg`), and a new
+   --replace <img block id>`: id, position and caption stay, the picture and its size change;
+   also for `<source>` attachments), a regenerated diagram into the existing board
+   (`scripts/board_update.py <doc> <board block id or token> d.mmd|d.puml|d.svg`; PlantUML
+   and SVG keep the board's id and token, a Mermaid redraw replaces the block and prints the
+   new id and token, so links that pointed at the old block need updating), and a new
    figure at a chosen position with `media_at.py --after <block id>`; `+media-insert` only
    appends at the end of the document.
 

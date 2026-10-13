@@ -89,6 +89,7 @@ def main() -> int:
         raise SystemExit(f"{args.file} is outside the current directory; cd next to it first")
     fmt = "markdown" if args.file.lower().endswith(".md") else "xml"
     content = f"@./{rel}"
+    preflight = "skipped (markdown body)"
     if fmt == "xml":
         # Preflight before anything is deleted: a body the server would mangle must never
         # replace a section that was fine.
@@ -96,6 +97,7 @@ def main() -> int:
                                 "preflight_xml.py"), args.file, "--no-profile"], capture_output=True, text=True)
         if check.returncode != 0:
             raise SystemExit("preflight failed, nothing written:\n" + check.stdout)
+        preflight = "ok"
 
     top, reply = outline(args.doc, args.identity)
     if top is None:
@@ -148,7 +150,8 @@ def main() -> int:
     print(json.dumps({"heading": "".join(head.itertext()).strip(), "heading_id": head.get("id"),
                       "action": what, "result": data.get("result"),
                       "warnings": data.get("warnings") or [],
-                      "revision_id": (data.get("document") or {}).get("revision_id")},
+                      "revision_id": (data.get("document") or {}).get("revision_id"),
+                      "preflight": preflight},
                      ensure_ascii=False, indent=2))
     return 0 if data.get("result") == "success" else 1
 

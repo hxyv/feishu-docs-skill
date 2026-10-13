@@ -17,7 +17,8 @@ Two routes, chosen by the file extension (both verified on lark-cli 1.0.96):
                 (degrade code 2107 on input it accepted a moment earlier), so this route
                 retries up to 8 times; a failure leaves the old board untouched.
 
-Prints JSON: {block_id, token, route, result, warnings}. Verify with
+Prints JSON: {block_id, token, route, result, revision_id, warnings} (a board update by token
+leaves the document revision unchanged, so revision_id is null on that route). Verify with
 `lark-cli whiteboard +export --as bot --whiteboard-token <token> --output-type preview --output board.jpg`.
 """
 import argparse
@@ -75,7 +76,7 @@ def main():
             args.append("--overwrite")
         res = lark(args, a.as_)
         out = {"block_id": block_id, "token": token, "route": "whiteboard-update",
-               "result": "success" if res.get("ok") else "failed",
+               "result": "success" if res.get("ok") else "failed", "revision_id": None,
                "warnings": [] if res.get("ok") else [res.get("error", {}).get("message")]}
     else:
         if a.append:
@@ -101,6 +102,7 @@ def main():
         new = next((b for b in d.get("document", {}).get("new_blocks", []) if b.get("block_type") == "whiteboard"), {})
         out = {"block_id": new.get("block_id", block_id), "token": new.get("block_token", token),
                "route": f"block_replace (new id and token; {tries} attempt(s))",
+               "revision_id": (d.get("document") or {}).get("revision_id"),
                "result": d.get("result", "failed" if not res.get("ok") else "?"),
                "warnings": d.get("warnings", [res.get("error", {}).get("message")] if not res.get("ok") else [])}
     print(json.dumps(out, indent=2, ensure_ascii=False))

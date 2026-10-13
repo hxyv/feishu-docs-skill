@@ -15,7 +15,7 @@ images and `$…$` formulas. Attribute values always in double quotes.
 | Divider | `<hr/>` | Markdown `---` |
 | Columns | `<grid><column width-ratio="0.5"><p>…</p></column><column width-ratio="0.5">…</column></grid>` | ratios sum to 1; any blocks inside |
 | Callout | `<callout emoji="💡" background-color="light-blue" border-color="blue"><p>…</p></callout>` | children: `p`, `ol`, `ul`, `checkbox`, inline tags only — no tables, images, code |
-| Code | `<pre lang="python" caption="file.py"><code>…</code></pre>` | code must sit in `<code>`; escape `<`, `&` as `&lt;`, `&amp;` |
+| Code | `<pre lang="python" caption="file.py"><code>…</code></pre>` | a code block is `<pre>` with the code in `<code>`; escape `<`, `&` as `&lt;`, `&amp;`. Inline code is `<code>` inside text (`<p>run <code>make</code></p>`) |
 | Checklist | `<checkbox done="true">Done item</checkbox><checkbox done="false">Open item</checkbox>` | Markdown `- [x]` / `- [ ]` also works |
 | Lists | `<ol><li>First<ul><li>nested</li></ul></li><li>Second</li></ol>` | nested lists go inside the parent `<li>`; a list wrapper has **no block id**, only its items do (see "Lists and ranges") |
 | Table | `<table><colgroup><col width="160"/><col width="120"/></colgroup><thead><tr><th background-color="light-gray"><p>H</p></th></tr></thead><tbody><tr><td background-color="light-green"><p>v</p></td></tr></tbody></table>` | cell content wrapped in `<p>`; `colspan`/`rowspan`/`vertical-align`; colours: `light-{red,orange,yellow,green,blue,purple,gray}`, `medium-gray`. Markdown tables are fine for plain data. |
@@ -35,7 +35,7 @@ with its title).
 
 | What | XML | Notes |
 |---|---|---|
-| Local image | `<img path="@./figures/x.png" width="600" align="center" caption="Figure 1. …"/>` | path relative to cwd; PNG/JPEG/GIF/WebP ≤ 20 MiB; omit width for full width; the caption comes back with a trailing newline (`&#xA;`), so match on it with care. Swap the picture of an existing block without touching id or caption: `scripts/media_at.py <doc> new.png --replace <img block id>` (`docs +media-upload --parent-node` + block patch `replace_image`) |
+| Local image | `<img path="@./figures/x.png" width="600" align="center" caption="Figure 1. …"/>` | path relative to cwd; PNG/JPEG/GIF/WebP ≤ 20 MiB; omit width for full width; the caption comes back with a trailing newline (`&#xA;`), so match on it with care. Swap the picture of an existing block without touching id or caption: `scripts/media_at.py <doc> new.png --replace <img block id> [--width 600]` (`docs +media-upload --parent-node` + block patch `replace_image` with the new pixel size; without a size Feishu keeps the old block's display size, so a bigger plot would show as a thumbnail) |
 | Web image | `<img href="https://…/x.png"/>` | the CLI downloads and uploads it |
 | Copy of an existing image | `<img src="<file token>"/>` | token from a `with-ids`/`full` fetch (`src=`) |
 | Attachment | `<source path="@./data.csv" name="data.csv"/>` | or `docs +media-insert --type file --file …` at the end of the doc, `media_at.py --after <block>` at a position, `media_at.py --replace <source block id>` to swap the file in place; `<figure view-type="Card">` around it for a card |

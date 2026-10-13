@@ -10,8 +10,9 @@ and reports `passed` for unclosed tags, unknown tags and bad nesting, and the se
 silently drops or mangles what it could not place. This script is the strict gate:
   1. strict XML well-formedness (unclosed tags, bare `&`, stray `<`), with line and column;
   2. every tag is one Feishu accepts (an unknown tag is dropped silently by the server);
-  3. nesting Feishu refuses (tables/images/code inside a callout, `code` outside `pre`,
-     `li` outside a list, block elements inside `p`, `column` outside `grid`);
+  3. nesting Feishu refuses (tables/images/pre inside a callout, `li` outside a list, block
+     elements inside `p`, `column` outside `grid`; inline `<code>` inside text is fine, a code
+     block is `<pre><code>`);
   4. local resources exist (`path="@./..."` relative to the cwd) and `<img>` has a source;
   5. `<whiteboard>` text uses `&gt;` for `>` (a raw `-->` makes the server reject the board);
   6. headings carry `seq="auto"` (warning: Feishu numbering is the house rule);
