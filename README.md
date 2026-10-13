@@ -42,6 +42,13 @@ agent:  (reads the outline, makes the PNG with matplotlib, inserts a numbered he
   creating a page under a given node and filling it, moving a Drive doc into the wiki,
   moving, copying, renaming and deleting pages, files under a page, members
   (`references/wiki.md`).
+- **In-place regeneration.** `scripts/media_at.py` swaps the picture or file of an existing
+  block (id, position and caption kept) or inserts one after a chosen block; `scripts/board_update.py`
+  redraws an existing board from PlantUML, SVG or Mermaid instead of adding a second one.
+- **Preflight.** `scripts/preflight_xml.py` checks an XML body before it is written: strict
+  well-formedness, Feishu's tag vocabulary, nesting rules, local files, board escaping and
+  numbering, then lark-cli's own parse for the block profile. The section sync refuses to
+  delete anything when the new body fails it.
 - **Safety.** Replace existing figures and tables in place instead of appending duplicates;
   never `overwrite` a shared document; high-risk operations only when the user asked.
 
@@ -119,6 +126,9 @@ feishu-docs/
   scripts/number_headings.py    switch on Feishu numbering for every heading
   scripts/csv_table.py          CSV to Markdown table
   scripts/wiki_tree.py          page tree of a wiki space or subtree with node and doc tokens
+  scripts/preflight_xml.py      strict check of an XML body before writing (gate used by sync_section)
+  scripts/media_at.py           image/attachment after a block, or swapped in place in an existing block
+  scripts/board_update.py       redraw an existing board from .puml/.svg/.mmd
 examples/
   make_figure.py                a matplotlib figure the way the skill expects it
   section.md                    a Markdown section body with a local figure and a table

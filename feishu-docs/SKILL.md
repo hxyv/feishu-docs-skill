@@ -43,6 +43,9 @@ not the shell exit status. The `_notice` update nag can be ignored.
 | Insert at a position, replace or delete blocks, inline text edits | `lark-cli docs +update` | steps 3–4 |
 | Feishu numbering on every heading | `scripts/number_headings.py <doc>` | step 3 |
 | CSV → Markdown table | `scripts/csv_table.py data.csv` | step 3 |
+| Check an XML body before writing it (well-formed, known tags, nesting, local files, board escaping) | `scripts/preflight_xml.py body.xml` | step 3 |
+| Put a figure or attachment after a given block, or swap the file of an existing image/attachment block in place | `scripts/media_at.py <doc> fig.png --after <id>` / `--replace <id>` | step 4 |
+| Redraw an existing board (Mermaid/PlantUML/SVG) instead of inserting a second one | `scripts/board_update.py <doc> <board id> d.mmd` | step 4 |
 | Figures, attachments, diagrams (Mermaid/SVG), callouts, code, checklists, columns, formulas, mentions, coloured tables | DocxXML | `references/blocks.md` |
 | Comments, version history (undo), PDF/Word export, importing files, folders, sharing, search | `lark-cli drive …`, `docs +history-*` | `references/collaboration.md` |
 | Wiki spaces: page tree, create a page under a node, move/copy/rename/delete pages, files under a page | `scripts/wiki_tree.py <space or url>`, `lark-cli wiki +node-*` | `references/wiki.md` |
@@ -81,6 +84,12 @@ Read a reference file the first time a task needs it, not up front.
    figure (600 px reads well for a single plot) use XML `<img width="600" …>`. A process,
    architecture or dependency is often clearer as a Mermaid diagram than as prose: Feishu
    renders `<whiteboard type="mermaid">` as an editable board (`references/blocks.md`).
+   Inside `<whiteboard>` text write `>` as `&gt;` (a raw `-->` makes the server reject the
+   board). Every `.xml` body goes through `scripts/preflight_xml.py` before it is written:
+   lark-cli's own parser repairs malformed XML silently and the server then drops what it
+   cannot place, so the strict local check is the only thing that catches an unclosed tag,
+   an unknown tag, a table inside a callout or a missing figure file. `sync_section.py`
+   runs it for you; run it yourself before a hand-written `docs +update --content @./x.xml`.
 
 3. **Write content from files, with the cwd set to that working folder.** `--content @./file`
    accepts only cwd-relative paths (an absolute `@/...` path is refused as unsafe), and local
@@ -157,6 +166,12 @@ Read a reference file the first time a task needs it, not up front.
    update response's `new_blocks` lists only resource blocks (images, boards), not the
    headings and paragraphs inserted with them; `result: success` with no warnings means the
    whole payload landed.
+   A regenerated figure goes into the existing image block (`scripts/media_at.py <doc> fig.png
+   --replace <img block id>`: id, position and caption stay, only the picture changes; also
+   for `<source>` attachments), a regenerated diagram into the existing board
+   (`scripts/board_update.py <doc> <board block id or token> d.mmd|d.puml|d.svg`), and a new
+   figure at a chosen position with `media_at.py --after <block id>`; `+media-insert` only
+   appends at the end of the document.
 
 5. **Verify and hand over.** Fetch the edited section back as Markdown (step 1); for a
    document the user will read as a whole, export it to PDF and look at the pages

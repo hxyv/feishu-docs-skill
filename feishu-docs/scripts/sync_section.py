@@ -89,6 +89,13 @@ def main() -> int:
         raise SystemExit(f"{args.file} is outside the current directory; cd next to it first")
     fmt = "markdown" if args.file.lower().endswith(".md") else "xml"
     content = f"@./{rel}"
+    if fmt == "xml":
+        # Preflight before anything is deleted: a body the server would mangle must never
+        # replace a section that was fine.
+        check = subprocess.run([sys.executable, os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                "preflight_xml.py"), args.file, "--no-profile"], capture_output=True, text=True)
+        if check.returncode != 0:
+            raise SystemExit("preflight failed, nothing written:\n" + check.stdout)
 
     top, reply = outline(args.doc, args.identity)
     if top is None:

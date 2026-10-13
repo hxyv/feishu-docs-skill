@@ -35,13 +35,13 @@ with its title).
 
 | What | XML | Notes |
 |---|---|---|
-| Local image | `<img path="@./figures/x.png" width="600" align="center" caption="Figure 1. …"/>` | path relative to cwd; PNG/JPEG/GIF/WebP ≤ 20 MiB; omit width for full width; the caption comes back with a trailing newline (`&#xA;`), so match on it with care |
+| Local image | `<img path="@./figures/x.png" width="600" align="center" caption="Figure 1. …"/>` | path relative to cwd; PNG/JPEG/GIF/WebP ≤ 20 MiB; omit width for full width; the caption comes back with a trailing newline (`&#xA;`), so match on it with care. Swap the picture of an existing block without touching id or caption: `scripts/media_at.py <doc> new.png --replace <img block id>` (`docs +media-upload --parent-node` + block patch `replace_image`) |
 | Web image | `<img href="https://…/x.png"/>` | the CLI downloads and uploads it |
 | Copy of an existing image | `<img src="<file token>"/>` | token from a `with-ids`/`full` fetch (`src=`) |
-| Attachment | `<source path="@./data.csv" name="data.csv"/>` | or `docs +media-insert --type file --file …` at the end of the doc; `<figure view-type="Card">` around it for a card |
-| Diagram from Mermaid | `<whiteboard type="mermaid">flowchart LR; A-->B</whiteboard>` | or `path="@./diagram.mmd"`; flowchart, sequence, class, pie, gantt, mindmap. Rendered by Feishu as an editable board; preview with `lark-cli whiteboard +export --whiteboard-token <block_token> --output-type preview --output ./x.jpg` (extension must be .jpg) |
+| Attachment | `<source path="@./data.csv" name="data.csv"/>` | or `docs +media-insert --type file --file …` at the end of the doc, `media_at.py --after <block>` at a position, `media_at.py --replace <source block id>` to swap the file in place; `<figure view-type="Card">` around it for a card |
+| Diagram from Mermaid | `<whiteboard type="mermaid">flowchart LR; A--&gt;B</whiteboard>` (write `>` as `&gt;`; the renderer fails intermittently with degrade code 2107 on valid input, retry the same write) | or `path="@./diagram.mmd"`; flowchart, sequence, class, pie, gantt, mindmap. Rendered by Feishu as an editable board; preview with `lark-cli whiteboard +export --whiteboard-token <block_token> --output-type preview --output ./x.jpg` (extension must be .jpg) |
 | Diagram from SVG / PlantUML | `<whiteboard type="svg" path="@./d.svg"/>`, `type="plantuml"` | SVG must be self-contained with a viewBox |
-| Update an existing board | `lark-cli docs +whiteboard-update --whiteboard-token <token> --input_format mermaid --source @./d.mmd --overwrite` | token from the fetch (`<whiteboard … token>`) or `new_blocks[].block_token` |
+| Update an existing board | `scripts/board_update.py <doc> <board id or token> d.puml\|d.svg\|d.mmd` (PlantUML/SVG: `docs +whiteboard-update --overwrite` by token, id and token kept; Mermaid: the block is replaced in place with a new id, because `+whiteboard-update --input_format mermaid` fails with "Unsupported color format" in lark-cli 1.0.96 and 1.0.97) | token from the fetch (`<whiteboard … token>`) or `new_blocks[].block_token` |
 
 ## How blocks come back from `+fetch --doc-format markdown`
 
